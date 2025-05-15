@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 export const postRouter = createTRPCRouter({
@@ -17,6 +16,8 @@ export const postRouter = createTRPCRouter({
       return ctx.db.post.create({
         data: {
           name: input.name,
+          content: "placeholder content", // TEMPORARY
+          authorId: "placeholder-author-id", // TEMPORARY
         },
       });
     }),
@@ -27,5 +28,11 @@ export const postRouter = createTRPCRouter({
     });
 
     return post ?? null;
+  }),
+
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    return ctx.db.post.findMany({
+      orderBy: { createdAt: "desc" },
+    });
   }),
 });
