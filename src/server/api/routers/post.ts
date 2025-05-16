@@ -10,17 +10,16 @@ export const postRouter = createTRPCRouter({
       };
     }),
 
-  create: publicProcedure
-    .input(z.object({ name: z.string().min(1) }))
+    create: publicProcedure
+    .input(z.object({ content: z.string().min(1), authorId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.post.create({
         data: {
-          name: input.name,
-          content: "placeholder content", // TEMPORARY
-          authorId: "placeholder-author-id", // TEMPORARY
+          content: input.content,
+          authorId: input.authorId,
         },
       });
-    }),
+    }),  
 
   getLatest: publicProcedure.query(async ({ ctx }) => {
     const post = await ctx.db.post.findFirst({
