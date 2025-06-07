@@ -8,6 +8,10 @@ import "./src/env.js";
 const config = {
   reactStrictMode: true,
 
+  images: {
+    domains: ["img.clerk.com"],
+  },
+
   /**
    * If you are using `appDir` then you must comment the below `i18n` config out.
    *
