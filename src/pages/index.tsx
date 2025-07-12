@@ -9,7 +9,9 @@ import { useState } from "react";
 import dayjs from "dayjs";
 
 import relativeTime from "dayjs/plugin/relativeTime";
-import { LoadingPage } from "~/components/loading";
+import { LoadingPage, LoadingSpinner } from "~/components/loading";
+import toast from "react-hot-toast";
+import { ZodError } from "zod";
 
 dayjs.extend(relativeTime);
 
@@ -19,15 +21,19 @@ const CreatePostWizard = () => {
   const [input, setInput] = useState("");
 
   const ctx = api.useContext();
-  
+
   const { mutate, isPending: isPosting } = api.posts.create.useMutation({
     onSuccess: () => {
       setInput("");           // clear input after successful post
       void ctx.posts.getAll.invalidate(); // refresh post feed
     },
     onError: (e) => {
-      console.error("Post failed", e);
-      // optionally: show a toast or error message
+      const errorMessage = e.data?.zodError?.fieldErrors.content;
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0]);
+      } else {
+      toast.error("Post failed");
+      }
     },
   });
 
@@ -50,9 +56,18 @@ const CreatePostWizard = () => {
         className="bg-transparent grow outline-none" 
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            if (input !== "") {
+              mutate({ content: input });
+            }
+          }
+        }}
         disabled={isPosting}
       />
-      <button onClick={() => mutate({ content: input })}>Post</button>
+      {input !== "" && !isPosting && (<button onClick={() => mutate({ content: input })}>Post</button>)}
+      {isPosting && <div className="flex items-center justify-center"><LoadingSpinner size={20}/></div>}
     </div>
   )
 }
