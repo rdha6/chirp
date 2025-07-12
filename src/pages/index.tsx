@@ -4,6 +4,7 @@ import Image from "next/image";
 import { type NextPage } from "next";
 import { api } from "~/utils/api";
 import type { RouterOutputs } from "~/utils/api";
+import { useState } from "react";
 
 import dayjs from "dayjs";
 
@@ -14,6 +15,21 @@ dayjs.extend(relativeTime);
 
 const CreatePostWizard = () => {
   const { user } = useUser();
+
+  const [input, setInput] = useState("");
+
+  const ctx = api.useContext();
+  
+  const { mutate, isPending: isPosting } = api.posts.create.useMutation({
+    onSuccess: () => {
+      setInput("");           // clear input after successful post
+      void ctx.posts.getAll.invalidate(); // refresh post feed
+    },
+    onError: (e) => {
+      console.error("Post failed", e);
+      // optionally: show a toast or error message
+    },
+  });
 
   console.log(user);
   
@@ -28,12 +44,20 @@ const CreatePostWizard = () => {
         height={56}
         className="w-14 h-14 rounded-full"
       />
-      <input type="text" placeholder="Type some emojis!" className="bg-transparent grow outline-none" />
+      <input 
+        type="text" 
+        placeholder="Type some emojis!" 
+        className="bg-transparent grow outline-none" 
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        disabled={isPosting}
+      />
+      <button onClick={() => mutate({ content: input })}>Post</button>
     </div>
   )
 }
 
-type PostWithUser = RouterOutputs["post"]["getAll"][number];
+type PostWithUser = RouterOutputs["posts"]["getAll"][number];
 const PostView = (props: PostWithUser ) => {
   const {post, author} = props;
   return (
@@ -56,7 +80,7 @@ const PostView = (props: PostWithUser ) => {
 }
 
 const Feed = () => {
-  const { data, isLoading: postsLoading } = api.post.getAll.useQuery();
+  const { data, isLoading: postsLoading } = api.posts.getAll.useQuery();
 
   if (postsLoading) return <LoadingPage />;
 
@@ -64,7 +88,7 @@ const Feed = () => {
 
   return ( 
   <div className="flex flex-col">
-    {[...data, ...data]?.map((fullPost) => (<PostView key = {fullPost.post.id} {...fullPost} />))}
+    {data.map((fullPost) => (<PostView key={fullPost.post.id} {...fullPost} />))}
   </div>)
 
 }
@@ -72,7 +96,7 @@ const Feed = () => {
 const Home: NextPage = () => {
   const { isLoaded: userLoaded, isSignedIn } = useUser();
 
-  api.post.getAll.useQuery();
+  api.posts.getAll.useQuery();
 
   if (!userLoaded) return <div />
 
