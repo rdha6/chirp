@@ -1,4 +1,4 @@
-import { clerkClient, type User } from "@clerk/clerk-sdk-node";
+import { clerkClient } from "@clerk/clerk-sdk-node";
 import type { Post } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
