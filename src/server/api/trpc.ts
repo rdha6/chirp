@@ -24,6 +24,13 @@ export const createTRPCContext = (opts: CreateNextContextOptions) => {
   };
 };
 
+export const createInnerTRPCContext = async () => {
+  return {
+    db,
+    userId: null,
+  };
+};
+
 /**
  * 2. INITIALIZATION
  *

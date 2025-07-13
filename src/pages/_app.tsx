@@ -1,4 +1,5 @@
 import { type AppType } from "next/app";
+import Head from "next/head";
 import { Geist } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
@@ -14,6 +15,11 @@ const geist = Geist({
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
     <ClerkProvider {...pageProps}>
+      <Head>
+        <title>Chirp</title>
+        <meta name="description" content="💭" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <div className={geist.className}>
         <Toaster position="bottom-center"/>
         <Component {...pageProps} />
