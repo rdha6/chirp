@@ -2,14 +2,12 @@ import { type GetStaticProps, type GetStaticPaths } from "next";
 import Head from "next/head";
 import { type NextPage } from "next";
 import { api } from "~/utils/api";
-import { createServerSideHelpers } from "@trpc/react-query/server";
-import superjson from "superjson";
-import { appRouter } from "~/server/api/root";
-import { createInnerTRPCContext } from "~/server/api/trpc";  // use this for SSG
 import { LoadingPage } from "~/components/loading";
 import { PageLayout } from "~/components/layouts";
 import Image from "next/image";
 import { PostView } from "~/components/postview";
+import { generateServerSideHelper } from "~/server/helpers/ssgHelper";
+
 
 // Component
 const ProfileFeed = (props: {userId: string}) => {
@@ -69,11 +67,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   const username = slug.replace("@", "");
   // Use createInnerTRPCContext here, no req/res needed during SSG
-  const ssg = createServerSideHelpers({
-    router: appRouter,
-    ctx: await createInnerTRPCContext(),
-    transformer: superjson,
-  });
+  const ssg = await generateServerSideHelper();
 
   await ssg.profile.getUserByUsername.prefetch({ username });
 
