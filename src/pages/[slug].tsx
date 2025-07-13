@@ -34,7 +34,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   return (
     <>
       <Head>
-        <title>{data.username}'s Profile</title>
+      <title>{data.username}&apos;s Profile</title>
       </Head>
       <PageLayout>
         <div className="bg-slate-600 h-36 relative">
